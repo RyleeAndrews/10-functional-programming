@@ -65,14 +65,21 @@ var app = app || {};
 
 // TODO: Chain together a `map` and a `reduce` call to get a rough count of all words in all articles.
   Article.numWordsAll = () => {
-    return Article.all.map().reduce()
+    return Article.all.map(function(articles){
+      return{articles: articles.body.split(' ')
+      };
+    }).reduce()
   };
 
 // TODO: Chain together a `map` and a `reduce` call to produce an array of unique author names. You will
 // probably need to use the optional accumulator argument in your reduce call.
   Article.allAuthors = () => {
-    return Article.all.map().reduce();
-  };
+    return Article.all.map(function(authors){
+      return{author: authors.author}
+    }).reduce(function(acc, val) {
+      return (acc + val);
+    })
+  }
 
   Article.numWordsByAuthor = () => {
     return Article.allAuthors().map(author => {
@@ -83,10 +90,12 @@ var app = app || {};
     // The first property should be pretty straightforward, but you will need to chain
     // some combination of filter, map, and reduce to get the value for the second
     // property.
+
     return {
       author: this.author,
       words: this.numWordsAll()
     }
+
     })
   };
 
