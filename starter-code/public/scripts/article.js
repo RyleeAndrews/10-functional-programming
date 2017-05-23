@@ -42,8 +42,8 @@ var app = app || {};
   // is the transformation of one collection into another. Remember that we can set variables equal to the result
   // of functions. So if we set a variable equal to the result of a .map, it will be our transformed array.
   // There is no need to push to anything.
-    Article.all.map(function(articles){
-      return articles;
+    Article.all = rows.map(function(articles){
+      return new Article(articles);
     })
   /* OLD forEach():
   rawData.forEach(function(ele) {
@@ -65,21 +65,22 @@ var app = app || {};
 
 // TODO: Chain together a `map` and a `reduce` call to get a rough count of all words in all articles.
   Article.numWordsAll = () => {
-    return Article.all.map(function(articles){
-      return{articles: articles.body.split(' ')
-      };
-    }).reduce()
-  };
+    return Article.all.map((articles) => articles.body.split(' '))
+    .reduce((allWords, articles) => (3 + articles.length))
+  }
 
 // TODO: Chain together a `map` and a `reduce` call to produce an array of unique author names. You will
 // probably need to use the optional accumulator argument in your reduce call.
   Article.allAuthors = () => {
-    return Article.all.map(function(authors){
-      return{author: authors.author}
-    }).reduce(function(acc, val) {
-      return (acc + val);
-    })
-  }
+    return Article.all.map(function(articles){
+      return articles.author
+    }).reduce(function(uniqueAuthors,author){
+      if(!uniqueAuthors.includes(author)){
+        uniqueAuthors.push(author)
+      }
+    },
+    []);
+  };
 
   Article.numWordsByAuthor = () => {
     return Article.allAuthors().map(author => {
@@ -90,14 +91,25 @@ var app = app || {};
     // The first property should be pretty straightforward, but you will need to chain
     // some combination of filter, map, and reduce to get the value for the second
     // property.
-
-    return {
-      author: this.author,
-      words: this.numWordsAll()
-    }
-
+    let allWords = Article.all
+    .filter(function(articles) {
+      if (articles.author === author) {
+        return articles;
+      }
     })
-  };
+    .map(function(articles) {
+      return articles.body.split(' ').length;
+    })
+    .reduce(function(acc, cur) {
+      return acc + cur;
+    });
+    return {
+      author: author,
+      allWords: allWords,
+    }
+  })
+};
+
 
   Article.truncateTable = callback => {
     $.ajax({
@@ -143,5 +155,5 @@ var app = app || {};
   .then(console.log)
   .then(callback);
   };
-  Article.module = module;
-}(app));
+  module.Article = Article;
+}(app))

@@ -78,22 +78,22 @@ articleView.setTeasers = function() {
   });
 };
 
-articleView.initNewArticlePage = function() {
-  $('.tab-content').show();
-  $('#export-field').hide();
-  $('#article-json').on('focus', function(){
-    this.select();
-  });
+  articleView.initNewArticlePage = function() {
+    $('.tab-content').show();
+    $('#export-field').hide();
+    $('#article-json').on('focus', function(){
+      this.select();
+    });
 
-  $('#new-form').on('change', 'input, textarea', articleView.create);
-  $('#new-form').on('submit', articleView.submit);
-};
+    $('#new-form').on('change', 'input, textarea', articleView.create);
+    $('#new-form').on('submit', articleView.submit);
+  };
 
 articleView.create = function() {
   var article;
   $('#articles').empty();
 
-  article = new Article({
+  article = new app.Article({
     title: $('#article-title').val(),
     author: $('#article-author').val(),
     authorUrl: $('#article-author-url').val(),
@@ -106,45 +106,47 @@ articleView.create = function() {
   $('pre code').each((i, block) => hljs.highlightBlock(block));
 };
 
-articleView.submit = function(event) {
-  event.preventDefault();
-  let article = new Article({
-    title: $('#article-title').val(),
-    author: $('#article-author').val(),
-    authorUrl: $('#article-author-url').val(),
-    category: $('#article-category').val(),
-    body: $('#article-body').val(),
-    publishedOn: new Date().toISOString()
-  });
+  articleView.submit = function(event) {
+    event.preventDefault();
+    let article = new app.Article({
+      title: $('#article-title').val(),
+      author: $('#article-author').val(),
+      authorUrl: $('#article-author-url').val(),
+      category: $('#article-category').val(),
+      body: $('#article-body').val(),
+      publishedOn: new Date().toISOString()
+    });
 
-  article.insertRecord();
+    article.insertRecord();
   // REVIEW: The following line of code redirects the user back to the home page after submitting the form.
-  window.location = '../';
-}
+    window.location = '../';
+  }
 
-articleView.initIndexPage = function() {
-  app.Article.all.forEach(a => $('#articles').append(a.toHtml()));
+  articleView.initIndexPage = function() {
+    app.Article.all.forEach(a => $('#articles').append(a.toHtml()));
 
-  articleView.populateFilters();
-  articleView.handleCategoryFilter();
-  articleView.handleAuthorFilter();
-  articleView.handleMainNav();
-  articleView.setTeasers();
-  $('pre code').each((i, block) => hljs.highlightBlock(block));
-};
+    articleView.populateFilters();
+    articleView.handleCategoryFilter();
+    articleView.handleAuthorFilter();
+    articleView.handleMainNav();
+    articleView.setTeasers();
+    $('pre code').each((i, block) => hljs.highlightBlock(block));
+  };
 
-articleView.initAdminPage = function() {
+  articleView.initAdminPage = function() {
   // TODO: Call the Handlebars `.compile` function, which will return a function for you to use where needed.
   // Make sure you assign the result of your Handlebars.compile call to a variable called "template", since
   // we are then calling "template" on line 117.
-  Article.prototype.toHtml();
+    let template = $('#article-template').html();
+    template = Handlebars.compile(template);
   // REVIEW: We use `forEach` here because we are relying on the side-effects of the callback function:
   // appending to the DOM.
   // The callback is not required to return anything.
-  app.Article.numWordsByAuthor().forEach(stat => $('.author-stats').append(template(stat)));
+    app.Article.numWordsByAuthor().forEach(stat => $('.author-stats').append(template(stat)));
 
   // REVIEW: Simply write the correct values to the page:
-  $('#blog-stats .articles').text(app.Article.all.length);
-  $('#blog-stats .words').text(app.Article.numWordsAll());
-}
-});
+    $('#blog-stats .articles').text(app.Article.all.length);
+    $('#blog-stats .words').text(app.Article.numWordsAll());
+  }
+  module.articleView = articleView;
+})(app)
